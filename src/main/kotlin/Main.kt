@@ -13,6 +13,8 @@ import io.ktor.server.plugins.autohead.*
 import io.ktor.server.plugins.contentnegotiation.*
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.koin.core.logger.Level
+import org.koin.core.logger.Logger
 import org.koin.dsl.module
 import org.koin.ktor.ext.inject
 import org.koin.ktor.plugin.Koin
@@ -25,13 +27,12 @@ fun main() {
     ) {
         configure()
 
-        val lyricsServer by inject<ExternalLyricsServer>()
-        getLyrics(lyricsServer)
+        getLyrics(inject<ExternalLyricsServer>().value)
     }.start(true)
 }
 
 private fun Application.configure() {
-    Database.connect("jdbc:sqlite:src/main/data.db", "org.sqlite.JDBC")
+    Database.connect("jdbc:sqlite:src/main/files/database.db", "org.sqlite.JDBC")
 
     install(AutoHeadResponse)
     install(ContentNegotiation) {
@@ -62,8 +63,9 @@ private fun Application.configure() {
 
             single<ExternalLyricsServer> {
                 ExternalLyricsServer(
-                    get(),
-                    "https://lrclib.net/"
+                    httpClient = get(),
+                    log = log,
+                    baseUrl = "https://lrclib.net/"
                 )
             }
         })
