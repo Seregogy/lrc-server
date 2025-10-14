@@ -17,6 +17,7 @@ application {
 }
 
 val ktorVersion = "2.3.7"
+val koinKtor = "4.1.1"
 val exposed = "1.0.0-rc-1"
 val h2 = "2.2.224"
 
@@ -27,6 +28,13 @@ dependencies {
 
 	implementation("io.ktor:ktor-server-core:${ktorVersion}")
 	implementation("io.ktor:ktor-server-netty:${ktorVersion}")
+
+    implementation("io.insert-koin:koin-ktor:$koinKtor")
+    implementation("io.insert-koin:koin-logger-slf4j:$koinKtor")
+
+    implementation("io.ktor:ktor-client-core:${ktorVersion}")
+    implementation("io.ktor:ktor-client-cio:${ktorVersion}")
+    implementation("io.ktor:ktor-client-content-negotiation:${ktorVersion}")
 
 	implementation("io.ktor:ktor-server-cors:${ktorVersion}")
 	implementation("io.ktor:ktor-serialization-kotlinx-json:${ktorVersion}")
