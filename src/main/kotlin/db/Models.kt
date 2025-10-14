@@ -19,6 +19,7 @@ object TracksTable : UUIDTable("TRACKS") {
 object LyricsTable : UUIDTable("LYRICS") {
     val plainText = text("plain_text").nullable()
     val syncedText = text("synced_text").nullable()
+    val lyricsProviderLink = text("provider").nullable()
 
     val track = reference("track", TracksTable).uniqueIndex()
 }
@@ -40,6 +41,7 @@ class LyricsEntity(id: EntityID<UUID>) : UUIDEntity(id) {
 
     val plainText by LyricsTable.plainText
     val syncedText by LyricsTable.syncedText
+    val lyricsProvider by LyricsTable.lyricsProviderLink
 
     var track by TrackEntity referencedOn LyricsTable.track
 }

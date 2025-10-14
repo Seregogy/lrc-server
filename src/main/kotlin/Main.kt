@@ -2,23 +2,18 @@ package com.lrc.server
 
 import com.lrc.server.routes.getLyrics
 import com.lrc.server.services.ExternalLyricsServer
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.serialization.kotlinx.json.json
-import io.ktor.server.application.Application
-import io.ktor.server.application.install
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
-import io.ktor.server.plugins.autohead.AutoHeadResponse
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.server.response.respond
-import io.ktor.server.routing.get
-import io.ktor.server.routing.routing
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.application.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+import io.ktor.server.plugins.autohead.*
+import io.ktor.server.plugins.contentnegotiation.*
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.koin.dsl.module
-import org.koin.java.KoinJavaComponent.inject
 import org.koin.ktor.ext.inject
 import org.koin.ktor.plugin.Koin
 
@@ -29,7 +24,9 @@ fun main() {
         host = "0.0.0.0"
     ) {
         configure()
-        getLyrics(inject<ExternalLyricsServer>().value)
+
+        val lyricsServer by inject<ExternalLyricsServer>()
+        getLyrics(lyricsServer)
     }.start(true)
 }
 
@@ -46,12 +43,13 @@ private fun Application.configure() {
         )
     }
     install(Koin) {
-        module {
+        modules(module {
             single<HttpClient> {
                 HttpClient(CIO) {
                     install(io.ktor.client.plugins.contentnegotiation.ContentNegotiation) {
                         json(Json {
                             ignoreUnknownKeys = true
+                            coerceInputValues = true
                         })
                     }
                     install(HttpTimeout) {
@@ -68,6 +66,6 @@ private fun Application.configure() {
                     "https://lrclib.net/"
                 )
             }
-        }
+        })
     }
 }
