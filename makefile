@@ -1,10 +1,12 @@
+.PHONY: build docker-build-image
+
 build:
-	./gradlew shadowjar
+	gradlew.bat shadowjar
 
 docker-build-image: build
 	docker build -t lrc-server .
 
-docker-push: docker-build-image
+docker-push: build docker-build-image
 	docker push reptiloidd/lrc-server:latest
 
 run: docker-build-image
