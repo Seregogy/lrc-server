@@ -20,9 +20,9 @@ import java.util.UUID
 
 @Serializable
 data class LyricsResponse(
-    val plainText: String,
-    val syncedText: String,
-    val provider: String
+    val plainText: String? = null,
+    val syncedText: Map<Long, String>? = null,
+    val provider: String? = null
 )
 
 fun Application.getLyrics(
@@ -42,9 +42,9 @@ fun Application.getLyrics(
                     fetchedTrack.lyrics.firstOrNull()
                 }?.let {
                     return@get call.respond(LyricsResponse(
-                        it.plainText ?: "",
-                        it.syncedText ?: "",
-                        "lrclib.net"
+                        it.plainText,
+                        parseSyncedLyrics(it.syncedText),
+                        provider = "lrclib.net"
                     ))
                 }
 
@@ -69,20 +69,22 @@ fun Application.getLyrics(
                         }
 
                         call.respond(LyricsResponse(
-                            lyrics.plainText ?: "",
-                            lyrics.syncedText ?: "",
-                            "lrclib.net"
+                            lyrics.plainText,
+                            parseSyncedLyrics(lyrics.syncedText),
+                            provider = "lrclib.net"
                         ))
                     }
                 } catch (ex: Exception) {
                     call.respond(
                         HttpStatusCode.InternalServerError,
                         mapOf(
-                            "error" to "error was happened, after send request on external api\n${ex.message}"
+                            "error" to "${ex.message}"
                         )
                     )
                 }
             }
+
+            parseSyncedLyrics("")
 
             call.respond(
                 HttpStatusCode.BadRequest,
@@ -92,4 +94,17 @@ fun Application.getLyrics(
             )
         }
     }
+}
+
+fun parseSyncedLyrics(testSyncedLyrics: String?): Map<Long, String>? {
+    testSyncedLyrics?.let {
+        return Regex("""\[(\d{2}:\d{2}\.\d{2})]\s(\W*)\n""").findAll(testSyncedLyrics).map {
+            val parsedMs = it.groups[1]?.value?.split(":", ".")?.map { it.toLong() }?.let {
+                it[0] * 60000 + it[1] * 1000 + it[2] * 10
+            }
+            (parsedMs ?: 0) to (it.groups[2]?.value ?: "")
+        }.toMap()
+    }
+
+    return null
 }
