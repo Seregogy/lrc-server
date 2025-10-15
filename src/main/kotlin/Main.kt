@@ -1,8 +1,6 @@
 package com.lrc.server
 
-import com.lrc.server.db.LyricsTable
 import com.lrc.server.routes.getLyrics
-import com.lrc.server.routes.parseSyncedLyrics
 import com.lrc.server.services.ExternalLyricsServer
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -15,9 +13,6 @@ import io.ktor.server.plugins.autohead.*
 import io.ktor.server.plugins.contentnegotiation.*
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.migration.jdbc.MigrationUtils
-import org.koin.core.logger.Level
-import org.koin.core.logger.Logger
 import org.koin.dsl.module
 import org.koin.ktor.ext.inject
 import org.koin.ktor.plugin.Koin
@@ -33,8 +28,6 @@ fun main() {
         getLyrics(inject<ExternalLyricsServer>().value)
     }.start(true)
 }
-
-
 
 private fun Application.configure() {
     Database.connect("jdbc:sqlite:src/main/files/database.db", "org.sqlite.JDBC")

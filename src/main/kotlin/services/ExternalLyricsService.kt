@@ -3,6 +3,7 @@ package com.lrc.server.services
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import kotlinx.serialization.Serializable
 import org.slf4j.Logger
 
@@ -26,9 +27,9 @@ class ExternalLyricsServer(
 ) {
     suspend fun getLyrics(trackId: Int): LyricsResponse? {
         return try {
-            log.info("${baseUrl}api/get/$trackId")
-
-            httpClient.get("${baseUrl}api/get/$trackId").body()
+            httpClient.get("${baseUrl}api/get/$trackId") {
+                log.info(url.toString())
+            }.body()
         } catch (ex: Exception) {
             log.info(ex.toString())
             null
@@ -37,13 +38,11 @@ class ExternalLyricsServer(
 
     suspend fun searchLyrics(trackName: String, artistName: String, albumName: String = ""): List<LyricsResponse>? {
         return try {
-            val url = "${baseUrl}api/search?" +
-                    "track_name=${trackName.split(" ").joinToString("+")}&" +
-                    "artist_name=${artistName.split(" ").joinToString("+")}&" +
-                    "album_name=${albumName}"
-            log.info(url)
+            httpClient.get("${baseUrl}api/search") {
+                parameter("q", listOf(trackName, artistName, albumName).joinToString(" "))
 
-            httpClient.get(url).body()
+                log.info(url.toString())
+            }.body()
         } catch (ex: Exception) {
             log.info(ex.toString())
             null
