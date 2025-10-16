@@ -2,21 +2,14 @@ package com.lrc.server.routes
 
 import com.lrc.server.db.LyricsEntity
 import com.lrc.server.db.TrackEntity
-import com.lrc.server.db.TracksTable
 import com.lrc.server.services.ExternalLyricsServer
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.Application
-import io.ktor.server.application.log
-import io.ktor.server.response.respond
-import io.ktor.server.routing.get
-import io.ktor.server.routing.routing
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import java.lang.Exception
-import java.util.UUID
+import java.util.*
 
 @Serializable
 data class LyricsResponse(
@@ -29,7 +22,7 @@ fun Application.getLyrics(
     externalLyricsServer: ExternalLyricsServer
 ) {
     routing {
-        get("api/v1/tracks/{id}/lyrics") {
+        get("api/v1/lyrics/{id}") {
             val trackId = call.parameters["id"] ?: return@get call.respond(
                 HttpStatusCode.BadRequest,
                 "error" to "id is null"

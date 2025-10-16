@@ -25,12 +25,14 @@ fun main() {
     ) {
         configure()
 
+        log.info("api/v1/lyrics/{id}")
+
         getLyrics(inject<ExternalLyricsServer>().value)
     }.start(true)
 }
 
 private fun Application.configure() {
-    Database.connect("jdbc:sqlite:src/main/files/database.db", "org.sqlite.JDBC")
+    Database.connect("jdbc:sqlite:src/files/database.db", "org.sqlite.JDBC")
 
     install(AutoHeadResponse)
     install(ContentNegotiation) {

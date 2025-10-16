@@ -4,7 +4,7 @@ build:
 	gradlew.bat shadowjar
 
 docker-build-image: build
-	docker build -t lrc-server .
+	docker build -t lrc-server:latest .
 
 docker-push: build docker-build-image
 	docker push reptiloidd/lrc-server:latest
