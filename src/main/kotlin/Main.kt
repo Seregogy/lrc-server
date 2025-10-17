@@ -1,6 +1,7 @@
 package com.lrc.server
 
 import com.lrc.server.routes.getLyrics
+import com.lrc.server.routes.parseSyncedLyrics
 import com.lrc.server.services.ExternalLyricsServer
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -24,9 +25,6 @@ fun main() {
         host = "0.0.0.0"
     ) {
         configure()
-
-        log.info("api/v1/lyrics/{id}")
-
         getLyrics(inject<ExternalLyricsServer>().value)
     }.start(true)
 }
